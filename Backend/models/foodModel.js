@@ -1,4 +1,3 @@
-// import mongoose
 import mongoose from "mongoose";
 
 // create the schema
