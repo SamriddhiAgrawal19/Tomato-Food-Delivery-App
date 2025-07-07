@@ -13,7 +13,7 @@ const Navbar = ({setShowLogin}) => {
 
     const[menu , setMenu] = useState("home");
     const{gettotalValue, token , setToken} = useContext(StoreContext);
-    function logout(){
+    function logOut(){
         localStorage.removeItem("token");
         setToken("");
         navigate("/");
