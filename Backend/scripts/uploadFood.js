@@ -5,7 +5,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { food_list } from '../assests/Food_data.js';
 
-// ✅ Fix __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -14,11 +13,9 @@ const uploadFood = async () => {
     try {
       const form = new FormData();
 
-      // ✅ Correct image path resolution
       const imagePath = path.join(__dirname, '..', 'assests', 'images', item.image);
       const imageStream = fs.createReadStream(imagePath);
 
-      // Append fields to form
       form.append('name', item.name);
       form.append('description', item.description);
       form.append('price', item.price);
