@@ -9,14 +9,14 @@ const placeOrder = async (req, res) => {
     const frontend_url = "http://localhost:5173";
 
     try {
-        // ✅ Use userId from middleware (preferably from req.userId, not req.body)
+        
         const userId = req.userId || req.body.userId;
 
         if (!userId || !req.body.items || !req.body.amount || !req.body.address) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
-        // ✅ Create a new order
+        
         const newOrder = new orderModel({
             userId: userId,
             items: req.body.items,
@@ -26,22 +26,22 @@ const placeOrder = async (req, res) => {
 
         await newOrder.save();
 
-        // ✅ Clear user's cart
+      
         await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
-        // ✅ Build Stripe line items
+        
         const line_items = req.body.items.map((item) => ({
             price_data: {
                 currency: "inr",
                 product_data: {
                     name: item.name,
                 },
-                unit_amount: Math.round(item.price * 100 * 80), // Stripe requires integer value
+                unit_amount: Math.round(item.price * 100 * 80), 
             },
             quantity: item.quantity,
         }));
 
-        // ✅ Add delivery fee
+        
         line_items.push({
             price_data: {
                 currency: "inr",
@@ -53,7 +53,7 @@ const placeOrder = async (req, res) => {
             quantity: 1,
         });
 
-        // ✅ Create Stripe checkout session
+        
         const session = await stripe.checkout.sessions.create({
             line_items,
             mode: 'payment',
@@ -61,13 +61,32 @@ const placeOrder = async (req, res) => {
             cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
         });
 
-        // ✅ Return Stripe session URL
+        
         res.json({ success: true, session_url: session.url });
 
     } catch (error) {
-        console.error("Order Placement Error:", error); // ✅ Always log server-side errors
+        console.error("Order Placement Error:", error); 
         res.status(500).json({ success: false, message: error.message });
     }
 };
+const verifyOrder = async(req , res)=>{
+    try{
+        const{orderId , success} = req.body;
+    if(success === "true"){
+        await orderModel.findByIdAndUpdate(orderId , {payment:true});
+        res.json({success : true , message:"paid"});
+    }
+    else{
+        await orderModel.findByIdAndDelete(orderId);
+        res.json({success : false , message : "Not paid"});
+    }
 
-export { placeOrder };
+
+    }catch(error){
+        console.log(error);
+        res.json({success : false , message : "error"});
+    }
+    
+}
+
+export { placeOrder , verifyOrder };
