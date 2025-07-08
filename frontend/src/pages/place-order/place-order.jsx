@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const PlaceOrder = () => {
-  const { gettotalValue, cartItems, url, food_list , token} = useContext(StoreContext);
+  const { gettotalValue, cartItems, url, food_list, token } = useContext(StoreContext);
   const navigate = useNavigate();
 
   const [data, setData] = useState({
@@ -32,123 +32,58 @@ const PlaceOrder = () => {
 
   const placeOrder = async (event) => {
     event.preventDefault();
-    const orderItems = [];
-    food_list.map((item) => {
-      if (cartItems[item._id] > 0) {
-        let itemInfo = { ...item, quantity: cartItems[item._id] };
-        orderItems.push(itemInfo);
+    try {
+      const orderItems = [];
+      food_list.map((item) => {
+        if (cartItems[item._id] > 0) {
+          let itemInfo = { ...item, quantity: cartItems[item._id] };
+          orderItems.push(itemInfo);
+        }
+      });
+
+      let orderData = {
+        address: data,
+        items: orderItems,
+        amount: gettotalValue() + 2
+      };
+
+      let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
+      if (response.data.success) {
+        window.location.replace(response.data.session_url);
+      } else {
+        alert("Something went wrong!");
       }
-    });
-    let orderData = {
-    address : data,
-    items: orderItems,
-    amount : gettotalValue() + 2
-  }
-  let response = await axios.post(url + "/api/order/place" , orderData , {headers : {token}});
-  if(response.data.success){
-    const{session_url} = response.data;
-    window.location.replace(session_url);
-
-  }
-  else{
-    alert("error");
-  }
-    
+    } catch (error) {
+      console.log(error);
+      alert("Order failed. Please try again.");
+    }
   };
-  useEffect(()=>{
-    if(!token){
-      navigate('/cart');
-    }
-    else if(gettotalValue() === 0){
-      navigate('/cart');
-    }
 
-  },[token])
-  
-  
+  useEffect(() => {
+    if (!token || gettotalValue() === 0) {
+      navigate('/cart');
+    }
+  }, [token]);
 
   return (
     <form onSubmit={placeOrder} className="place-order">
       <div className="place-order-left">
         <p className="title">Delivery Information</p>
         <div className="multi-fields">
-          <input
-            type="text"
-            name="firstName"
-            placeholder="First name"
-            value={data.firstName}
-            onChange={onChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="lastName"
-            placeholder="Last name"
-            value={data.lastName}
-            onChange={onChangeHandler}
-            required
-          />
+          <input type="text" name="firstName" placeholder="First name" value={data.firstName} onChange={onChangeHandler} required />
+          <input type="text" name="lastName" placeholder="Last name" value={data.lastName} onChange={onChangeHandler} required />
         </div>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email address"
-          value={data.email}
-          onChange={onChangeHandler}
-          required
-        />
-        <input
-          type="text"
-          name="street"
-          placeholder="Street"
-          value={data.street}
-          onChange={onChangeHandler}
-          required
-        />
+        <input type="email" name="email" placeholder="Email address" value={data.email} onChange={onChangeHandler} required />
+        <input type="text" name="street" placeholder="Street" value={data.street} onChange={onChangeHandler} required />
         <div className="multi-fields">
-          <input
-            type="text"
-            name="city"
-            placeholder="City"
-            value={data.city}
-            onChange={onChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="state"
-            placeholder="State"
-            value={data.state}
-            onChange={onChangeHandler}
-            required
-          />
+          <input type="text" name="city" placeholder="City" value={data.city} onChange={onChangeHandler} required />
+          <input type="text" name="state" placeholder="State" value={data.state} onChange={onChangeHandler} required />
         </div>
         <div className="multi-fields">
-          <input
-            type="text"
-            name="zipcode"
-            placeholder="Zip-Code"
-            value={data.zipcode}
-            onChange={onChangeHandler}
-            required
-          />
-          <input
-            type="text"
-            name="country"
-            placeholder="Country"
-            value={data.country}
-            onChange={onChangeHandler}
-            required
-          />
+          <input type="text" name="zipcode" placeholder="Zip-Code" value={data.zipcode} onChange={onChangeHandler} required />
+          <input type="text" name="country" placeholder="Country" value={data.country} onChange={onChangeHandler} required />
         </div>
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone"
-          value={data.phone}
-          onChange={onChangeHandler}
-          required
-        />
+        <input type="text" name="phone" placeholder="Phone" value={data.phone} onChange={onChangeHandler} required />
       </div>
 
       <div className="place-order-right">
