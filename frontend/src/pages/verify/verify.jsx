@@ -8,7 +8,7 @@ import axios from 'axios';
 
 const  Verify = () => {
     const[searchParams , setSearchParams] = useSearchParams();
-    const success = searchParams.get("success");
+    const success = searchParams.get("success") === "true";
     const orderId = searchParams.get("orderId");
     const{url} = useContext(StoreContext);
     const navigate = useNavigate();

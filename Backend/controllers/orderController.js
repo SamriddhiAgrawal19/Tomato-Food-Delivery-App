@@ -72,7 +72,7 @@ const placeOrder = async (req, res) => {
 const verifyOrder = async(req , res)=>{
     try{
         const{orderId , success} = req.body;
-    if(success === "true"){
+    if(success === "true" || success === true){
         await orderModel.findByIdAndUpdate(orderId , {payment:true});
         res.json({success : true , message:"paid"});
     }
@@ -88,5 +88,17 @@ const verifyOrder = async(req , res)=>{
     }
     
 }
+const userOrders = async(req , res)=>{
+    try {
+        const orders = await orderModel.find({userId : req.body.userId || req.userId});
+        res.json({success : true , data:orders});
+    } catch (error) {
+        console.log(error);
+        res.json({success : false , message : "Error"});
 
-export { placeOrder , verifyOrder };
+        
+    }
+
+}
+
+export { placeOrder , verifyOrder , userOrders };
