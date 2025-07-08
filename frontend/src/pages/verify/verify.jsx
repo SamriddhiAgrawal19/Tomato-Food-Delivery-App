@@ -30,8 +30,10 @@ const Verify = () => {
   };
 
   useEffect(() => {
+  if (url) {
     verifyPayment();
-  }, []);
+  }
+}, [url]);
 
   return (
     <div className="verify">
