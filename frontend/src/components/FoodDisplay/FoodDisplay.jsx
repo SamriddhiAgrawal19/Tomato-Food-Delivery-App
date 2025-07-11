@@ -5,6 +5,7 @@ import "./FoodDisplay.css"
 
 const FoodDisplay = ({category}) => {
     const {food_list} = useContext(StoreContext)
+     console.log("food_list from context:", food_list)
   return (
     <div className='food-display' id = 'food-dsplay'>
         <h2>Top Dishes Near you</h2>
